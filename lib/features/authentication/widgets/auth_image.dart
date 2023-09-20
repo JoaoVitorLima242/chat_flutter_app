@@ -12,7 +12,12 @@ class AuthImage extends StatelessWidget {
         left: 20,
         right: 20,
       ),
-      width: 100,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40.0),
+      ),
+      width: 130,
+      padding: const EdgeInsets.all(20),
       child: Image.asset('assets/chat.png'),
     );
   }
