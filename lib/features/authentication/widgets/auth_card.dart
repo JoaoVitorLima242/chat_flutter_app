@@ -10,12 +10,39 @@ class AuthCard extends StatefulWidget {
 }
 
 class _AuthCard extends State<AuthCard> {
-  bool _isLogin = true;
+  final _formKey = GlobalKey<FormState>();
 
-  void switchAuthentication() {
+  bool _isLogin = true;
+  String _enteredEmail = '';
+  String _enteredPassword = '';
+
+  void _switchAuthentication() {
     setState(() {
       _isLogin = !_isLogin;
     });
+  }
+
+  void _onFormSubmit() {
+    final isValid = _formKey.currentState!.validate();
+
+    if (isValid) {
+      _formKey.currentState!.save();
+      print((_enteredEmail, _enteredPassword));
+    }
+  }
+
+  String? _emailValidator(String? value) {
+    if (value == null || value.trim().isEmpty || !value.contains('@')) {
+      return 'Please enter a valid email address.';
+    }
+    return null;
+  }
+
+  String? _passwordValidator(String? value) {
+    if (value == null || value.trim().length < 6) {
+      return 'Password must be at least 6 characters long.';
+    }
+    return null;
   }
 
   @override
@@ -25,34 +52,43 @@ class _AuthCard extends State<AuthCard> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
+          key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 textCapitalization: TextCapitalization.none,
+                validator: _emailValidator,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                ),
+                onSaved: (value) {
+                  _enteredEmail = value!;
+                },
               ),
               TextFormField(
+                obscureText: true,
+                validator: _passwordValidator,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
-                obscureText: true,
+                onSaved: (value) {
+                  _enteredPassword = value!;
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _onFormSubmit,
                 style: ElevatedButton.styleFrom(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,
-                    minimumSize: const Size.fromHeight(35)),
+                    minimumSize: const Size.fromHeight(36)),
                 child: Text(_isLogin ? "Login" : 'Signup'),
               ),
               TextButton(
-                onPressed: switchAuthentication,
+                onPressed: _switchAuthentication,
                 child: Text(_isLogin
                     ? 'Create an account'
                     : 'I already have an account'),
