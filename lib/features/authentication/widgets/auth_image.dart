@@ -17,6 +17,7 @@ class AuthImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(40.0),
       ),
       width: 130,
+      height: 130,
       padding: const EdgeInsets.all(20),
       child: Image.asset('assets/chat.png'),
     );
