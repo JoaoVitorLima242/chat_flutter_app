@@ -35,23 +35,29 @@ class _AuthCard extends State<AuthCard> {
     _formKey.currentState!.save();
 
     try {
+      UserCredential userCredentials;
+
       if (_isLogin) {
-      } else {
-        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+        userCredentials = await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
-        print(userCredentials);
+      } else {
+        userCredentials = await _firebase.createUserWithEmailAndPassword(
+          email: _enteredEmail,
+          password: _enteredPassword,
+        );
       }
-    } on FirebaseAuthException catch (error) {
-      openErrorSnackBar(error, 'Authentication failed.');
+      print(userCredentials);
+    } on FirebaseAuthException {
+      openErrorSnackBar();
     }
   }
 
-  void openErrorSnackBar(FirebaseAuthException error, String text) {
+  void openErrorSnackBar() {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error.message ?? text)),
+      const SnackBar(content: Text('Authentication failed.')),
     );
   }
 
