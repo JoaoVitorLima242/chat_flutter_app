@@ -1,3 +1,4 @@
+import 'package:chat_app/common_widgets/user_image_picker/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -86,6 +87,7 @@ class _AuthCard extends State<AuthCard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (!_isLogin) const UserImagePicker(),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
