@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_app/common_widgets/user_image_picker/user_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -59,6 +60,16 @@ class _AuthCard extends State<AuthCard> {
           email: _enteredEmail,
           password: _enteredPassword,
         );
+
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child('${userCredentials.user!.uid}.jpg');
+
+        await storageRef.putFile(_selectedImage!);
+        final imageUrl = await storageRef.getDownloadURL();
+
+        print(imageUrl);
       }
       print(userCredentials);
     } on FirebaseAuthException {
