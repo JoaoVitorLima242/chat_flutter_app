@@ -24,6 +24,7 @@ class _AuthCard extends State<AuthCard> {
 
   bool _isLogin = true;
   String _enteredEmail = '';
+  String _enteredUsername = '';
   String _enteredPassword = '';
   File? _selectedImage;
   var _isAuthenticating = false;
@@ -78,19 +79,19 @@ class _AuthCard extends State<AuthCard> {
         final imageUrl = await storageRef.getDownloadURL();
 
         await _firebaseFirestore.collection('users').doc(userId).set({
-          'username': 'to be done...',
+          'username': _enteredUsername,
           'email': _enteredEmail,
           'image_url': imageUrl
         });
       }
-      print(userCredentials);
-    } on FirebaseAuthException {
+    } on FirebaseAuthException catch (error) {
       openErrorSnackBar();
-    }
+      setState(() {
+        _isAuthenticating = false;
+      });
 
-    setState(() {
-      _isAuthenticating = false;
-    });
+      print(error);
+    }
   }
 
   void openErrorSnackBar() {
@@ -98,6 +99,13 @@ class _AuthCard extends State<AuthCard> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Authentication failed.')),
     );
+  }
+
+  String? _usernameValidator(String? value) {
+    if (value == null || value.trim().isEmpty || value.trim().length < 4) {
+      return 'Please enter at least 4 characters.';
+    }
+    return null;
   }
 
   String? _emailValidator(String? value) {
@@ -126,6 +134,18 @@ class _AuthCard extends State<AuthCard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!_isLogin) UserImagePicker(onPickImage: onPickImage),
+              if (!_isLogin)
+                TextFormField(
+                  autocorrect: false,
+                  textCapitalization: TextCapitalization.none,
+                  validator: _usernameValidator,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                  ),
+                  onSaved: (value) {
+                    _enteredUsername = value!;
+                  },
+                ),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
