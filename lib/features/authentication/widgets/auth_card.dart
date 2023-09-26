@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:chat_app/common_widgets/user_image_picker/user_image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-final _firebase = FirebaseAuth.instance;
+final _firebaseAuth = FirebaseAuth.instance;
+final _firebaseStorage = FirebaseStorage.instance;
+final _firebaseFirestore = FirebaseFirestore.instance;
 
 class AuthCard extends StatefulWidget {
   const AuthCard({super.key});
@@ -56,25 +59,29 @@ class _AuthCard extends State<AuthCard> {
       UserCredential userCredentials;
 
       if (_isLogin) {
-        userCredentials = await _firebase.signInWithEmailAndPassword(
+        userCredentials = await _firebaseAuth.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
       } else {
-        userCredentials = await _firebase.createUserWithEmailAndPassword(
+        userCredentials = await _firebaseAuth.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
 
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('user_images')
-            .child('${userCredentials.user!.uid}.jpg');
+        final userId = userCredentials.user!.uid;
+
+        final storageRef =
+            _firebaseStorage.ref().child('user_images').child('$userId.jpg');
 
         await storageRef.putFile(_selectedImage!);
         final imageUrl = await storageRef.getDownloadURL();
 
-        print(imageUrl);
+        await _firebaseFirestore.collection('users').doc(userId).set({
+          'username': 'to be done...',
+          'email': _enteredEmail,
+          'image_url': imageUrl
+        });
       }
       print(userCredentials);
     } on FirebaseAuthException {
