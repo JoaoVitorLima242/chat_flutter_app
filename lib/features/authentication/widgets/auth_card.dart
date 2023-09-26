@@ -23,6 +23,7 @@ class _AuthCard extends State<AuthCard> {
   String _enteredEmail = '';
   String _enteredPassword = '';
   File? _selectedImage;
+  var _isAuthenticating = false;
 
   void _switchAuthentication() {
     setState(() {
@@ -46,6 +47,10 @@ class _AuthCard extends State<AuthCard> {
     }
 
     _formKey.currentState!.save();
+
+    setState(() {
+      _isAuthenticating = true;
+    });
 
     try {
       UserCredential userCredentials;
@@ -75,6 +80,10 @@ class _AuthCard extends State<AuthCard> {
     } on FirebaseAuthException {
       openErrorSnackBar();
     }
+
+    setState(() {
+      _isAuthenticating = false;
+    });
   }
 
   void openErrorSnackBar() {
@@ -134,15 +143,24 @@ class _AuthCard extends State<AuthCard> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _onFormSubmit,
+                onPressed: _isAuthenticating ? null : _onFormSubmit,
                 style: ElevatedButton.styleFrom(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,
                     minimumSize: const Size.fromHeight(36)),
-                child: Text(_isLogin ? "Login" : 'Signup'),
+                child: _isAuthenticating
+                    ? const SizedBox(
+                        height: 20.0,
+                        width: 20.0,
+                        child: Center(
+                            child: CircularProgressIndicator(
+                          color: Colors.grey,
+                        )),
+                      )
+                    : Text(_isLogin ? "Login" : 'Signup'),
               ),
               TextButton(
-                onPressed: _switchAuthentication,
+                onPressed: _isAuthenticating ? null : _switchAuthentication,
                 child: Text(_isLogin
                     ? 'Create an account'
                     : 'I already have an account'),
